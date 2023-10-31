@@ -4,7 +4,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 
 const errorController = require("./controllers/error");
-const client = require("./database");
+const { client, createSchema } = require("./database");
 
 const app = express();
 
@@ -24,4 +24,13 @@ app.use(errorController.get404);
 
 app.listen(3000, async () => {
   await client.connect();
+
+  await client.query('SELECT * FROM "public"."product"', (err, res) => {
+    if (err) {
+      createSchema();
+    }
+    if (res) {
+      console.log("🚀 ~ file: app.js:33 ~ awaitclient.query ~ res:", res);
+    }
+  });
 });

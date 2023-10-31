@@ -1,35 +1,52 @@
 const Product = require("../models/product");
 const Cart = require("../models/cart");
+const { client } = require("../database");
 
-exports.getProducts = (req, res, next) => {
-  Product.fetchAll((products) => {
-    res.render("shop/product-list", {
-      prods: products,
-      pageTitle: "All Products",
-      path: "/products",
-    });
+const getAllProuctsHelperFunction = async (
+  res,
+  renderPagePath,
+  path,
+  title
+) => {
+  await client.query('SELECT * FROM "public"."product"', (err, result) => {
+    if (!err) {
+      res.render(renderPagePath, {
+        prods: result?.rows,
+        pageTitle: title,
+        path: path,
+      });
+    }
   });
 };
 
-exports.getProduct = (req, res, next) => {
+exports.getAllProuctsHelperFunction = getAllProuctsHelperFunction;
+
+exports.getProducts = (req, res, next) => {
+  getAllProuctsHelperFunction(
+    res,
+    "shop/product-list",
+    "/products",
+    "All Products"
+  );
+};
+
+exports.getProduct = async (req, res, next) => {
   const prodId = req.params.productId;
-  Product.findById(prodId, (product) => {
-    res.render("shop/product-detail", {
-      product: product,
-      pageTitle: product.title,
-      path: "/products",
-    });
-  });
+
+  await client.query(
+    `SELECT * FROM "public"."product" WHERE id = ${prodId}`,
+    (_err, result) => {
+      res.render("shop/product-detail", {
+        product: result.rows[0],
+        pageTitle: result.rows[0].title,
+        path: "/products",
+      });
+    }
+  );
 };
 
 exports.getIndex = (req, res, next) => {
-  Product.fetchAll((products) => {
-    res.render("shop/index", {
-      prods: products,
-      pageTitle: "Shop",
-      path: "/",
-    });
-  });
+  getAllProuctsHelperFunction(res, "shop/product-list", "/", "All Products");
 };
 
 exports.getCart = (req, res, next) => {
