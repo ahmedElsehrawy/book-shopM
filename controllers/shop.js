@@ -1,52 +1,48 @@
 const Product = require("../models/product");
 const Cart = require("../models/cart");
-const { client } = require("../database");
 
-const getAllProuctsHelperFunction = async (
-  res,
-  renderPagePath,
-  path,
-  title
-) => {
-  await client.query('SELECT * FROM "public"."product"', (err, result) => {
-    if (!err) {
-      res.render(renderPagePath, {
-        prods: result?.rows,
-        pageTitle: title,
-        path: path,
+exports.getIndex = (req, res, next) => {
+  Product.findAll()
+    .then((result) => {
+      res.render("shop/product-list", {
+        prods: result,
+        pageTitle: "All Products",
+        path: "/",
       });
-    }
-  });
+    })
+    .catch((err) => {
+      console.log("🚀 ~ file: shop.js:51 ~ Product.findAll ~ err:", err);
+    });
 };
 
-exports.getAllProuctsHelperFunction = getAllProuctsHelperFunction;
-
 exports.getProducts = (req, res, next) => {
-  getAllProuctsHelperFunction(
-    res,
-    "shop/product-list",
-    "/products",
-    "All Products"
-  );
+  Product.findAll()
+    .then((result) => {
+      res.render("shop/product-list", {
+        prods: result,
+        pageTitle: "All Products",
+        path: "/products",
+      });
+    })
+    .catch((err) => {
+      console.log("🚀 ~ file: shop.js:51 ~ Product.findAll ~ err:", err);
+    });
 };
 
 exports.getProduct = async (req, res, next) => {
   const prodId = req.params.productId;
 
-  await client.query(
-    `SELECT * FROM "public"."product" WHERE id = ${prodId}`,
-    (_err, result) => {
+  Product.findByPk(prodId)
+    .then((result) => {
       res.render("shop/product-detail", {
-        product: result.rows[0],
-        pageTitle: result.rows[0].title,
+        product: result,
+        pageTitle: result.title,
         path: "/products",
       });
-    }
-  );
-};
-
-exports.getIndex = (req, res, next) => {
-  getAllProuctsHelperFunction(res, "shop/product-list", "/", "All Products");
+    })
+    .catch((err) => {
+      console.log("🚀 ~ file: shop.js:39 ~ Product.findByPk ~ err:", err);
+    });
 };
 
 exports.getCart = (req, res, next) => {
