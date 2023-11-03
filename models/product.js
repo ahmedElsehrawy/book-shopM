@@ -1,30 +1,16 @@
-const { Sequelize } = require("sequelize");
+const { client } = require("../database");
 
-const { sequelize } = require("../database");
+module.exports = class Product {
+  constructor(title, imageUrl, description, price) {
+    this.title = title;
+    this.imageUrl = imageUrl;
+    this.description = description;
+    this.price = price;
+  }
 
-const Product = sequelize.define("product", {
-  id: {
-    type: Sequelize.INTEGER,
-    autoIncrement: true,
-    allowNull: false,
-    primaryKey: true,
-  },
-  title: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
-  price: {
-    type: Sequelize.DOUBLE,
-    allowNull: false,
-  },
-  imageurl: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
-  description: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
-});
-
-module.exports = Product;
+  async save() {
+    await client.query(
+      `INSERT INTO "public"."product" ( title, imageurl, description, price) VALUES ('${this.title}', '${this.imageUrl}', '${this.description}', ${this.price})`
+    );
+  }
+};
