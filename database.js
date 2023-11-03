@@ -14,4 +14,6 @@ exports.createSchema = async () => {
   );
 };
 
+const ahmed = "hello";
+
 exports.client = client;
